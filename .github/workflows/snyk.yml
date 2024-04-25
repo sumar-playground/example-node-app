@@ -10,6 +10,8 @@ on:
 jobs:
   security:
     runs-on: ubuntu-latest
+    permissions:
+      repository-projects: read
     steps:
       - uses: actions/checkout@master
       - name: Run Snyk to check for vulnerabilities
