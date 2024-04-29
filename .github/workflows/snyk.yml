@@ -64,7 +64,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    needs: install-build-test
+    needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 20
     # environment:
