@@ -24,9 +24,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
-      - run: npm ci
       - if: matrix.job == 'test'
-        run: ls -lah
+      - run: npm ci
+      - run: ls -lah && echo test
 
       - if: matrix.job == 'scan'
         uses: snyk/actions/node@master
