@@ -23,7 +23,7 @@ jobs:
       - uses: snyk/actions/node@master
         continue-on-error: true
         with:
-          args: --fail-on=upgradable --severity-threshold=critical #--org=$SNYK_ORG
+          args: --fail-on=upgradable --severity-threshold=critical
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
   test:
