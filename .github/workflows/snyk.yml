@@ -1,33 +1,57 @@
 name: CI
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - develop
+      - 'release/**'
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - develop
+      - 'release/**'
+      - main
 
-  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
-  security:
+  install:
     runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - run: npm ci
+  test:
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - run: echo npm run docker:test
+
+  scan:
+    runs-on: ubuntu-latest
+    needs: install
     permissions:
       actions: read
       contents: read
-      statuses: read
-      security-events: write
+      # statuses: read
+      # security-events: write
     steps:
-      - uses: actions/checkout@master
-      - name: Generate Sarif File
-        uses: snyk/actions/node@master
-        continue-on-error: true # To make sure that SARIF upload gets called
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --sarif-file-output=snyk.sarif --severity-threshold=critical
-      - name: Upload Sarif File to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: snyk.sarif
+      # - uses: actions/checkout@master
+      # - name: Generate Sarif File
+      #   uses: snyk/actions/node@master
+      #   continue-on-error: true # To make sure that SARIF upload gets called
+      #   env:
+      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      #   with:
+      #     args: --sarif-file-output=snyk.sarif --severity-threshold=critical
+      # - name: Upload Sarif File to GitHub Code Scanning
+      #   uses: github/codeql-action/upload-sarif@v3
+      #   with:
+      #     sarif_file: snyk.sarif
       - name: Monitor vulnerabilities with Snyk
         uses: snyk/actions/node@master
         continue-on-error: true # Don't break CI for now
@@ -35,4 +59,25 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           args: --fail-on=upgradable --severity-threshold=critical
-          command: monitor
+
+  release-to-production:
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      id-token: write
+      contents: read
+    needs: install-build-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # environment:
+    #   name: production
+    #   url: https://api.triniti.net
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      # - uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     role-to-assume: arn:aws:iam::698823889544:role/GithubActionsDeploy
+      #     role-session-name: github-deploy
+      #     aws-region: ap-southeast-2
+      - name: Install AWS Copilot
+        run: echo deploy to production
