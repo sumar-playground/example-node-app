@@ -26,9 +26,30 @@ jobs:
       - uses: actions/setup-node@v3
       - if: matrix.job == 'test'
         run: |
+          echo "Install dependencies"
           npm ci
-          echo npm run docker:test
-          echo ls -lah
+
+          echo "Start database"
+          echo "npm run docker:start:db"
+          sleep 5
+          
+          echo "Create env file"
+          touch .env
+          echo MONGODB_URI=$MONGODB_URI >> .env
+          echo JWT_KEYS_URI=$JWT_KEYS_URI >> .env
+          echo JWT_VERIFY_AUD=$JWT_VERIFY_AUD >> .env
+          echo JWT_VERIFY_ISS=$JWT_VERIFY_ISS >> .env
+          echo REDIS_PASSWORD=$REDIS_PASSWORD >> .env
+          echo APIFILESTORAGE_BUCKET_NAME >> .env
+          echo AUTH0_DOMAIN=$AUTH0_DOMAIN >> .env
+          echo AUTH0_CLIENT_ID=$AUTH0_CLIENT_ID >> .env
+          echo AUTH0_CLIENT_SECRET=$AUTH0_CLIENT_SECRET >> .env
+          echo AUTH0_API_AUDIENCE=$AUTH0_API_AUDIENCE >> .env
+          echo SENTRY_DSN=$SENTRY_DSN >> .env
+          echo NOVU_API_KEY=$NOVU_API_KEY >> .env
+          
+          echo "Run tests"
+          echo "npm run docker:test"
 
       - if: matrix.job == 'scan'
         uses: snyk/actions/node@master
