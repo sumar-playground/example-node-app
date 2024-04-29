@@ -25,8 +25,10 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
       - if: matrix.job == 'test'
-      - run: npm ci
-      - run: ls -lah && echo test
+      - run: |
+          npm ci
+          ls -lah
+          echo test
 
       - if: matrix.job == 'scan'
         uses: snyk/actions/node@master
