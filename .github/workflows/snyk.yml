@@ -24,15 +24,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
-      - name: ${{ matrix.job }}
-        if: matrix.job == 'test'
+      - if: matrix.job == 'test'
         run: |
           npm ci
           echo npm run docker:test
           echo ls -lah
 
-      - name: ${{ matrix.job }}
-        if: matrix.job == 'scan'
+      - if: matrix.job == 'scan'
         uses: snyk/actions/node@master
         continue-on-error: true
         with:
