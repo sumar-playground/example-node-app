@@ -34,4 +34,4 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --fail-on=upgradable --severity-threshold=critical --org= ${{ env.SNYK_ORG }}
+          args: --fail-on=upgradable --severity-threshold=critical --org= ${{ vars.SNYK_ORG }}
